@@ -21,6 +21,8 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
         }
         input {
             margin: 10px 0;
@@ -28,6 +30,7 @@
             width: 100%;
             border: 1px solid #ccc;
             border-radius: 5px;
+            box-sizing: border-box;
         }
         button {
             padding: 10px 15px;
@@ -36,14 +39,22 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            width: 100%;
         }
         button:disabled {
             background-color: #ccc;
         }
-        video {
-            display: none;
+        .video-container {
             width: 100%;
-            margin-top: 20px;
+            margin: 20px 0;
+            background: black;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
         }
         .hidden {
             display: none;
@@ -60,7 +71,9 @@
     </div>
     <div id="qr-section" class="hidden">
         <h2>Escanear QR</h2>
-        <video id="qr-video"></video>
+        <div class="video-container">
+            <video id="qr-video" class="hidden"></video>
+        </div>
         <p id="qr-result"></p>
         <button id="logout-btn">Cerrar Sesión</button>
     </div>
@@ -78,7 +91,7 @@
 
     let isLoggedIn = false;
 
-    // Simulación de credenciales (en una aplicación real, esto debe ser seguro y en el backend)
+    // Credenciales válidas (solo para demostración)
     const validCredentials = {
         username: 'usuario',
         password: 'contraseña'
@@ -110,6 +123,7 @@
         const constraints = { video: { facingMode: "environment" } };
         navigator.mediaDevices.getUserMedia(constraints)
             .then(stream => {
+                qrVideo.classList.remove('hidden');
                 qrVideo.srcObject = stream;
                 qrVideo.setAttribute("playsinline", true);
                 qrVideo.play();
@@ -117,11 +131,12 @@
             })
             .catch(err => {
                 console.error("Error al acceder a la cámara:", err);
-                alert('No se pudo acceder a la cámara. Asegúrate de que esté disponible.');
+                alert('Permiso de cámara requerido. Por favor habilita el acceso a la cámara en tu navegador.');
             });
     }
 
     function stopQRScanner() {
+        qrVideo.classList.add('hidden');
         const stream = qrVideo.srcObject;
         if (stream) {
             const tracks = stream.getTracks();
@@ -137,16 +152,17 @@
             canvas.height = qrVideo.videoHeight;
             const context = canvas.getContext('2d');
             context.drawImage(qrVideo, 0, 0, canvas.width, canvas.height);
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
+            
             try {
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
                 if (code) {
-                    qrResult.textContent = `Contenido del QR: ${code.data}`;
+                    qrResult.textContent = `Contenido QR: ${code.data}`;
                     stopQRScanner();
                 }
             } catch (err) {
-                console.error("Error al decodificar el QR:", err);
+                console.error("Error al decodificar QR:", err);
             }
         }
         if (isLoggedIn) {
