@@ -53,6 +53,7 @@
                 const canvas = document.createElement('canvas');
                 canvas.width = qrVideo.videoWidth;
                 canvas.height = qrVideo.videoHeight;
+
                 const context = canvas.getContext('2d');
                 context.drawImage(qrVideo, 0, 0, canvas.width, canvas.height);
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
@@ -60,6 +61,7 @@
                 try {
                     const code = jsQR(imageData.data, imageData.width, imageData.height);
                     if (code) {
+                        console.log("QR detectado:", code.data);
                         qrResult.textContent = `Contenido del QR: ${code.data}`;
                         stopQRScanner();
                     }
@@ -82,6 +84,6 @@
         // Iniciar el escáner cuando la página cargue
         startQRScanner();
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsQR/dist/jsQR.js"></script>
 </body>
 </html>
